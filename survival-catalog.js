@@ -1,6 +1,8 @@
-// Register Afterlight Survival once at the beginning of the existing catalogue.
+// Keep the original catalogue order and its card artwork intact.
+// RNG is added by rng-catalog.js immediately before this file runs, so Survival
+// belongs at the end rather than being unshifted ahead of the original games.
 if (!games.some(game => game.id === 'survival')) {
-  games.unshift({
+  games.push({
     id: 'survival',
     title: 'Afterlight Survival',
     cat: 'Survie',
@@ -10,9 +12,6 @@ if (!games.some(game => game.id === 'survival')) {
   });
 }
 
-// Add its category to the existing category filters.
 if (!cats.includes('Survie')) cats.push('Survie');
-
-// Re-render after both the game and its category have been registered.
 renderCats();
 render();
