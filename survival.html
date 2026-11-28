@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Afterlight Survival — EL GAME</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090b10;color:#eee;font-family:system-ui;overflow:hidden}canvas{display:block;width:100vw;height:100vh;cursor:crosshair}.hud{position:fixed;inset:0;pointer-events:none}.top{display:flex;justify-content:space-between;padding:14px}.panel{background:#1116;border:1px solid #fff2;border-radius:10px;padding:9px 12px;backdrop-filter:blur(8px)}.bars{position:absolute;left:14px;bottom:14px;width:min(270px,40vw)}.bar{height:16px;background:#222;border-radius:8px;margin:6px 0;overflow:hidden}.bar i{display:block;height:100%;transition:.2s}.hp i{background:#e74c3c}.food i{background:#e9a23b}.water i{background:#3aa9e8}.inventory{position:absolute;right:14px;bottom:14px}.slots{display:flex;gap:6px}.slot{pointer-events:auto;width:48px;height:48px;border:1px solid #ffffff30;border-radius:8px;background:#151515cc;display:grid;place-items:center;font-size:20px}.slot:first-child{border-color:#ffe69a}.menu{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 28px));max-height:80vh;overflow:auto;background:#151820ee;border:1px solid #ffffff26;border-radius:14px;padding:18px;pointer-events:auto;display:none}.menu.open{display:block}.menu h2{margin-top:0}.menu button,.start{pointer-events:auto;border:1px solid #fff3;background:#252a35;color:#fff;border-radius:8px;padding:10px 12px;margin:4px}.recipe{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #fff1;padding:8px 0}.action{position:absolute;right:14px;top:70px;pointer-events:auto}.touch{display:none;position:absolute;left:14px;bottom:92px;pointer-events:auto}.touch button{width:55px;height:55px;border-radius:50%;border:1px solid #fff3;background:#151515aa;color:#fff;font-size:20px}.touch .dpad{display:grid;grid-template-columns:repeat(3,55px);gap:4px}.touch .dpad button:nth-child(1){grid-column:2}.touch .dpad button:nth-child(2){grid-column:1}.touch .dpad button:nth-child(3){grid-column:2}.touch .dpad button:nth-child(4){grid-column:3}@media(max-width:760px){.touch{display:block}.bars{bottom:14px}.inventory{right:14px}.slot{width:42px;height:42px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="hud">
+ <div class="top"><div class="panel"><b id="day">Jour 1</b> · <span id="time">Jour</span></div><div class="panel" id="status">Explore</div></div>
+ <div class="bars"><div class="bar hp"><i id="hp"></i></div><div class="bar food"><i id="food"></i></div><div class="bar water"><i id="water"></i></div></div>
+ <div class="inventory"><div class="slots" id="slots"></div></div>
+ <button class="action panel" id="craftButton">Fabrication [C]</button>
+ <div class="touch"><div class="dpad"><button data-dir="up">▲</button><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div></div>
+ <div class="menu" id="menu"><h2>Fabrication</h2><div id="recipes"></div><button id="closeMenu">Fermer</button></div>
+</div>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');let W=0,H=0;
+function resize(){W=c.width=innerWidth*devicePixelRatio;H=c.height=innerHeight*devicePixelRatio}addEventListener('resize',resize);resize();
+const names={wood:'🪵',stone:'🪨',fiber:'🌿',berry:'🫐',water:'💧',woodSword:'🗡️',stoneSword:'🪓',camp:'⛺'};
+let seed=29,state={x:0,y:0,hp:100,food:100,water:100,day:1,time:0,inv:{wood:3,stone:1,fiber:2,berry:2,water:2,woodSword:0,stoneSword:0,camp:0},weapon:0,score:0};
+try{let s=JSON.parse(localStorage.getItem('el-survival-save'));if(s)state={...state,...s}}catch(e){}
+const rand=n=>{seed=(seed*1664525+1013904223)>>>0;return(seed%n)};
+const world=new Map();function tile(x,y){let k=x+','+y;if(!world.has(k)){let r=rand(100);world.set(k,r<9?'camp':r<28?'house':r<43?'tree':r<57?'rock':r<67?'berry':r<72?'water':'grass')}return world.get(k)}
+let monsters=[],keys={};
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='c')toggleMenu();if(e.key.toLowerCase()==='e')interact()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('pointerdown',()=>keys[b.dataset.dir]=true));document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('pointerup',()=>keys[b.dataset.dir]=false));
+function interact(){let tx=Math.floor(state.x/64),ty=Math.floor(state.y/64),t=tile(tx,ty);if(t==='tree')state.inv.wood=(state.inv.wood||0)+2;if(t==='rock')state.inv.stone=(state.inv.stone||0)+2;if(t==='berry')state.inv.berry=(state.inv.berry||0)+2;if(t==='water')state.inv.water=(state.inv.water||0)+2;if(t==='house'||t==='camp'){state.inv.wood=(state.inv.wood||0)+(rand(3)+1);state.inv.fiber=(state.inv.fiber||0)+(rand(2)+1)}world.set(tx+','+ty,'grass');save();updateHUD()}
+c.addEventListener('pointerdown',e=>attack());
+function attack(){for(let i=monsters.length-1;i>=0;i--){let m=monsters[i],dx=m.x-state.x,dy=m.y-state.y;if(Math.hypot(dx,dy)<72){let dmg=state.inv.stoneSword>0?8:state.inv.woodSword>0?5:3;m.hp-=dmg;if(m.hp<=0){monsters.splice(i,1);state.score++;state.inv.wood=(state.inv.wood||0)+1}}}}
+function spawn(){let night=state.time>1300&&state.time<2300;if(monsters.length<(night?5:1)+Math.floor(state.day/3)){let a=Math.random()*Math.PI*2,d=500+Math.random()*300;monsters.push({x:state.x+Math.cos(a)*d,y:state.y+Math.sin(a)*d,hp:12+state.day*2,speed:18+state.day*.7})}}
+function toggleMenu(){document.getElementById('menu').classList.toggle('open')};document.getElementById('craftButton').onclick=toggleMenu;document.getElementById('closeMenu').onclick=()=>document.getElementById('menu').classList.remove('open');
+const recipes=[['woodSword','Épée en bois',{wood:6,stone:2}],['stoneSword','Épée en pierre',{wood:4,stone:8}],['camp','Campement',{wood:10,fiber:6}]];
+function renderRecipes(){document.getElementById('recipes').innerHTML=recipes.map(r=>`<div class="recipe"><span>${names[r[0]]} ${r[1]}</span><button data-craft="${r[0]}">Créer</button></div>`).join('');document.querySelectorAll('[data-craft]').forEach(b=>b.onclick=()=>craft(b.dataset.craft))}function craft(id){let r=recipes.find(x=>x[0]===id);if(!r)return;for(let k in r[2])if((state.inv[k]||0)<r[2][k])return;for(let k in r[2])state.inv[k]-=r[2][k];state.inv[id]=(state.inv[id]||0)+1;save();updateHUD();renderRecipes()}renderRecipes();
+function save(){localStorage.setItem('el-survival-save',JSON.stringify(state));document.getElementById('status').textContent='Sauvegarde locale'}
+setInterval(save,10000);setInterval(spawn,1800);
+function updateHUD(){document.getElementById('hp').style.width=state.hp+'%';document.getElementById('food').style.width=state.food+'%';document.getElementById('water').style.width=state.water+'%';document.getElementById('day').textContent='Jour '+state.day;document.getElementById('time').textContent=(state.time<1300?'Jour':'Nuit');let s=['water','food','wood','stone','woodSword','stoneSword'];document.getElementById('slots').innerHTML=s.map(k=>`<div class="slot">${names[k]}<small>${state.inv[k]||0}</small></div>`).join('')}
+function draw(){let speed=130;if(keys.w||keys.up)state.y-=speed/60;if(keys.s||keys.down)state.y+=speed/60;if(keys.a||keys.left)state.x-=speed/60;if(keys.d||keys.right)state.x+=speed/60;if(keys[' '])interact();let cx=W/2,cy=H/2,night=state.time>1300&&state.time<2300;
+ctx.fillStyle=night?'#10152a':'#4f7549';ctx.fillRect(0,0,W,H);let scale=devicePixelRatio,size=64*scale,tx0=Math.floor((state.x-W/2/scale)/64)-1,ty0=Math.floor((state.y-H/2/scale)/64)-1,tx1=Math.floor((state.x+W/2/scale)/64)+1,ty1=Math.floor((state.y+H/2/scale)/64)+1;
+for(let y=ty0;y<=ty1;y++)for(let x=tx0;x<=tx1;x++){let sx=cx+(x*64-state.x)*scale,sy=cy+(y*64-state.y)*scale,t=tile(x,y);ctx.fillStyle=t==='grass'||t==='berry'? '#77a85d':'#65715a';ctx.fillRect(sx,sy,size,size);if(t==='tree'){ctx.fillStyle='#315d35';ctx.beginPath();ctx.arc(sx+32*scale,sy+32*scale,22*scale,0,7);ctx.fill()}if(t==='rock'){ctx.fillStyle='#777b78';ctx.beginPath();ctx.arc(sx+32*scale,sy+32*scale,18*scale,0,7);ctx.fill()}if(t==='berry'){ctx.fillStyle='#d64568';ctx.fillRect(sx+22*scale,sy+24*scale,24*scale,24*scale)}if(t==='water'){ctx.fillStyle='#397f99';ctx.fillRect(sx,sy,size,size)}if(t==='house'||t==='camp'){ctx.fillStyle=t==='camp'?'#9b6842':'#6f4b33';ctx.fillRect(sx+12*scale,sy+18*scale,40*scale,34*scale)}}
+for(let m of monsters){let x=cx+(m.x-state.x)*scale,y=cy+(m.y-state.y)*scale,dx=m.x-state.x,dy=m.y-state.y,d=Math.hypot(dx,dy);if(d<260){let a=Math.atan2(dy,dx);m.x-=Math.cos(a)*m.speed/60;m.y-=Math.sin(a)*m.speed/60;if(d<35)state.hp-=night?.12:.04}ctx.fillStyle='#a82a45';ctx.beginPath();ctx.arc(x,y,18*scale,0,7);ctx.fill();ctx.fillStyle='#ffb0a8';ctx.fillRect(x-7*scale,y-6*scale,5*scale,5*scale);ctx.fillRect(x+2*scale,y-6*scale,5*scale,5*scale)}
+ctx.fillStyle='#e8d5b3';ctx.beginPath();ctx.arc(cx,cy,15*scale,0,7);ctx.fill();ctx.fillStyle='#262637';ctx.fillRect(cx-5*scale,cy-25*scale,10*scale,15*scale);if(night){ctx.fillStyle='#05081499';ctx.fillRect(0,0,W,H)}
+state.time+=.55;if(state.time>=2400){state.time=0;state.day++;state.score+=1;parent.postMessage({type:'el-game-score',game:'survival',score:state.day},location.origin)}state.food-=.008;state.water-=.012;if(state.food<0||state.water<0||state.hp<=0){state.hp=0;parent.postMessage({type:'el-game-score',game:'survival',score:state.day},location.origin);state={x:0,y:0,hp:100,food:100,water:100,day:1,time:0,inv:{wood:3,stone:1,fiber:2,berry:2,water:2,woodSword:0,stoneSword:0,camp:0},weapon:0,score:0};save()}updateHUD();requestAnimationFrame(draw)}updateHUD();draw();
+</script>
+</body>
+</html>
