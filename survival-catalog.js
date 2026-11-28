@@ -1,0 +1,1 @@
+games.push({id:'survival',title:'Afterlight Survival',cat:'Survie',emoji:'🌙',desc:'Explore, recueille des ressources, fabrique ton équipement et survie de nuit en nuit.',bg:'linear-gradient(135deg,#17231d,#56704d)'});
