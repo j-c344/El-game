@@ -1,9 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-:root{--bg:#0c0d14;--panel:#151725;--muted:#999db1;--text:#f7f7fb;--purple:#9872ff;--pink:#ff6ab5;--line:#292b3d}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}.top{min-height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 6%;border-bottom:1px solid var(--line)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));align-items:stretch;gap:16px;padding:4px 2px 18px}.card{width:100%;min-width:0;padding:0;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;color:var(--text);cursor:pointer;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-4px);border-color:var(--purple)}.cover{height:150px;display:flex;position:relative;overflow:hidden;justify-content:flex-start;align-items:flex-end;padding:16px;background-color:#161827!important;background-repeat:no-repeat!important}.cover>span{display:none}.card-info{display:grid;gap:6px;padding:14px}.title{font-weight:800;font-size:1.05rem}.cat-label,.desc{color:var(--muted);font-size:.9rem}
-/* Afterlight Survival is the featured first game. */
-.grid .card:first-child{grid-column:span 2;border:2px solid var(--purple);box-shadow:0 10px 36px rgba(152,114,255,.28)}.grid .card:first-child .cover{height:230px}.grid .card:first-child .title{font-size:1.2rem}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid .card:first-child .cover{height:200px}}
-@media(max-width:480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid .card:first-child{grid-column:1/-1}.grid .card:first-child .cover{height:185px}.cover{height:112px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+/* Restore the site's original catalogue look from before the accidental stylesheet replacement. */
+@import url('https://raw.githubusercontent.com/j-c344/El-game/6c1273472fbd53f039873c97c9e04bad6353d761/style.css');
+
+/* Keep Afterlight Survival integrated with the original cards and responsive grid. */
+.card[data-game="survival"] .cover,
+.card[data-id="survival"] .cover { background: linear-gradient(135deg,#10222a,#4c8792) !important; }
