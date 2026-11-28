@@ -1,17 +1,1 @@
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="EL GAME — des jeux gratuits, jouables sur mobile et ordinateur."><meta name="theme-color" content="#0c0d14">
-<title>EL GAME — Play more</title><link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header class="top"><a class="brand" href="#"><span class="logo">EL</span> GAME<span class="dot">.</span></a><div class="tools"><input id="search" type="search" placeholder="Rechercher un jeu…" aria-label="Rechercher un jeu"><button id="lang" class="lang" type="button">EN</button></div></header>
-<section class="hero"><div><p class="eyebrow" data-fr="TON PROCHAIN JEU COMMENCE ICI" data-en="YOUR NEXT GAME STARTS HERE">TON PROCHAIN JEU COMMENCE ICI</p><h1 data-fr="Joue. Explore. <span>Recommence.</span>" data-en="Play. Explore. <span>Repeat.</span>">Joue. Explore. <span>Recommence.</span></h1><p class="sub" data-fr="Des jeux gratuits, directement dans ton navigateur." data-en="Free games, right in your browser.">Des jeux gratuits, directement dans ton navigateur.</p></div><div class="hero-mark" aria-hidden="true">🎮</div></section>
-<nav id="categories" class="categories" aria-label="Catégories"></nav>
-<main><div class="section-head"><div><p class="eyebrow" data-fr="À DÉCOUVRIR" data-en="PICK YOUR GAME">À DÉCOUVRIR</p><h2 data-fr="Tous les jeux" data-en="All games">Tous les jeux</h2></div><span class="game-count" id="game-count"></span></div><div id="games" class="grid"></div><p id="empty" class="empty" hidden>Aucun jeu trouvé.</p></main>
-<section class="leaderboard" id="leaderboard"><p class="eyebrow" data-fr="LES MEILLEURS JOUEURS" data-en="TOP PLAYERS">LES MEILLEURS JOUEURS</p><h2 data-fr="Classement" data-en="Leaderboard">Classement</h2><div class="lb-controls"><label for="lb-name" data-fr="Pseudo" data-en="Nickname">Pseudo</label><input id="lb-name" maxlength="20" autocomplete="nickname" placeholder="2–20 caractères"><button id="lb-save-name" type="button" data-fr="Enregistrer" data-en="Save">Enregistrer</button><label for="lb-game" data-fr="Jeu" data-en="Game">Jeu</label><select id="lb-game"></select><button id="lb-refresh" type="button" data-fr="Actualiser" data-en="Refresh">Actualiser</button></div><p id="lb-status" role="status" aria-live="polite"></p><ol id="lb-list" class="lb-list"></ol><p class="privacy-note" data-fr="Les scores envoyés sont validés par le serveur. Les jeux restent jouables sans compte." data-en="Submitted scores are checked server-side. Games can be played without an account.">Les scores envoyés sont validés par le serveur. Les jeux restent jouables sans compte.</p></section>
-<footer><b>EL GAME<span class="dot">.</span></b><span data-fr="Fait pour jouer. © 2026" data-en="Made for play. © 2026">Fait pour jouer. © 2026</span></footer>
-<div id="player" class="player" hidden><div class="playerbar"><button id="back" type="button">← <span data-fr="Retour aux jeux" data-en="Back to games">Retour aux jeux</span></button><strong id="playingTitle"></strong><button id="fullscreen" type="button" aria-label="Plein écran">⛶</button></div><iframe id="frame" title="Jeu" allow="fullscreen; autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="script.js"></script><script src="rng-catalog.js"></script>
-</body></html>
+  drop constraint if exists scores_game_player_unique;
